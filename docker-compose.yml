@@ -1,0 +1,28 @@
+services:
+  binance-chat-monitor:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env.monitor
+    environment:
+      BINANCE_CHAT_COOKIE_FILE: /app/data/www.binance.com_cookies.txt
+      BINANCE_CHAT_COOKIE_BROWSER_CHANNEL: bundled
+      BINANCE_CHAT_TARGET_SESSION_ID: "${BINANCE_CHAT_TARGET_SESSION_ID:?Set target session ID in .env.monitor}"
+      BINANCE_CHAT_TARGET_SESSION_NAME: "${BINANCE_CHAT_TARGET_SESSION_NAME:-丁家军军团}"
+      BINANCE_CHAT_TARGET_SESSION_TYPE: GROUP
+      WECOM_WEBHOOK_URL: "${WECOM_WEBHOOK_URL:?Set WECOM_WEBHOOK_URL in .env.monitor}"
+      BINANCE_CHAT_MONITOR_DB: /app/data/monitor.sqlite3
+    volumes:
+      - binance-chat-data:/app/data
+      - ./.env.monitor:/app/.env.monitor:ro
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+      - /home/app/.cache:size=64m,uid=10001,gid=10001,mode=0700
+    shm_size: 1gb
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  binance-chat-data:
